@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+
+import sys
+from math import gcd, sqrt, isqrt
+
+# Simple trial division for small numbers and to find prime factors
+def trial_division(n):
+    for i in range(2, isqrt(n) + 1):
+        if n % i == 0:
+            return i, n // i
+    return None, None
+
+# Simple prime check for smaller numbers
+def is_prime(n):
+    if n <= 1:
+        return False
+    for i in range(2, isqrt(n) + 1):
+        if n % i == 0:
+            return False
+    return True
+
+# Updated quadratic sieve function (only used for large numbers)
+def quadratic_sieve(n):
+    def f(x): return (x * x - n) % n
+    
+    x = isqrt(n)
+    while True:
+        y = f(x)
+        if y == 0:
+            return gcd(x - isqrt(n), n)
+        smooth = y
+        for p in range(2, isqrt(n) + 1):
+            while smooth % p == 0:
+                smooth //= p
+        if smooth == 1 or smooth == -1:
+            return gcd(y, n)
+        x += 1
+
+def main(filename):
+    try:
+        with open(filename, 'r') as file:
+            n = int(file.readline().strip())
+            
+            # Step 1: Try simple trial division first
+            p, q = trial_division(n)
+            if p and q:
+                # Ensure both p and q are primes
+                if is_prime(p) and is_prime(q):
+                    print(f"{n}={p}*{q}")
+                else:
+                    print(f"{n} has non-prime factors")
+                return
+
+            # Step 2: If trial division fails, try quadratic sieve
+            p = quadratic_sieve(n)
+            if p:
+                q = n // p
+                # Check if both p and q are prime
+                if is_prime(p) and is_prime(q):
+                    print(f"{n}={p}*{q}")
+                else:
+                    print(f"{n} has non-prime factors")
+            else:
+                print(f"Could not factorize {n} into primes")
+
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found.")
+    except ValueError:
+        print(f"Error: Invalid number in the file.")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: rsa <file>")
+        sys.exit(1)
+    main(sys.argv[1])
