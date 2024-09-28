@@ -2,11 +2,13 @@
 import sys
 import math
 
+
 def factorize(n):
     for i in range(2, int(math.sqrt(n)) + 1):
         if n % i == 0:
             return i, n // i
     return n, 1  # This will never be hit due to problem constraints.
+
 
 def main(filename):
     try:
@@ -21,6 +23,7 @@ def main(filename):
         print(f"Error: File '{filename}' not found.")
     except ValueError:
         print("Error: Invalid number in the file.")
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
