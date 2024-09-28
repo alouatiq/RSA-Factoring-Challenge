@@ -20,8 +20,15 @@ def is_probable_prime(n, k=5):
         else: return False
     return True
 
+def trial_division(n):
+    # Simple trial division for small numbers
+    for i in range(2, int(sqrt(n)) + 1):
+        if n % i == 0:
+            return i, n // i
+    return None, None
+
 def quadratic_sieve(n):
-    def f(x): return (x*x - n) % n
+    def f(x): return (x * x - n) % n
     
     m = int(exp(sqrt(log(n) * log(log(n)))) / 2)
     factor_base = [p for p in range(2, m) if is_probable_prime(p) and n % p != 0]
@@ -30,7 +37,7 @@ def quadratic_sieve(n):
     while True:
         y = f(x)
         if y == 0:
-            return gcd(x-sqrt(n), n)
+            return gcd(x - sqrt(n), n)
         smooth = y
         for p in factor_base:
             while smooth % p == 0:
@@ -43,9 +50,21 @@ def main(filename):
     try:
         with open(filename, 'r') as file:
             n = int(file.readline().strip())
+            
+            # Step 1: Try simple trial division first
+            p, q = trial_division(n)
+            if p and q:
+                print(f"{n}={p}*{q}")
+                return
+
+            # Step 2: If trial division fails, try quadratic sieve
             p = quadratic_sieve(n)
-            q = n // p
-            print(f"{n}={p}*{q}")
+            if p:
+                q = n // p
+                print(f"{n}={p}*{q}")
+            else:
+                print(f"Could not factorize {n}")
+
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found.")
     except ValueError:
